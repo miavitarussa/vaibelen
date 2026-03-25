@@ -233,7 +233,21 @@ function renderOnboardingStep1() {
         ${photo ? `<img src="${photo}" style="width:100%;height:100%;object-fit:cover;">` : name[0].toUpperCase()}
       </div>
       <div style="font-family:'Syne',sans-serif;font-size:26px;font-weight:800;letter-spacing:-0.02em;margin-bottom:8px;">Привет, ${name}!</div>
-      <div style="font-size:15px;color:var(--text-dim);margin-bottom:32px;line-height:1.6;">Посмотрим, как у тебя дела<br>в <strong>9 сферах жизни</strong></div>
+      <div style="font-size:15px;color:var(--text-dim);margin-bottom:24px;line-height:1.6;">Твой личный трекер баланса жизни</div>
+      <div style="display:flex;flex-direction:column;gap:10px;max-width:300px;margin:0 auto 24px;text-align:left;">
+        <div style="display:flex;align-items:center;gap:12px;background:var(--surface2);border-radius:14px;padding:12px 16px;border:1px solid var(--border);">
+          <span style="font-size:22px;">🎯</span>
+          <span style="font-size:13px;color:var(--text-dim);line-height:1.4;">Оцени 9 сфер жизни и увидь, где нужно внимание</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;background:var(--surface2);border-radius:14px;padding:12px 16px;border:1px solid var(--border);">
+          <span style="font-size:22px;">✅</span>
+          <span style="font-size:13px;color:var(--text-dim);line-height:1.4;">Выполняй рутины и отмечай их каждый день</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;background:var(--surface2);border-radius:14px;padding:12px 16px;border:1px solid var(--border);">
+          <span style="font-size:22px;">📈</span>
+          <span style="font-size:13px;color:var(--text-dim);line-height:1.4;">Следи за прогрессом и стреком без перерыва</span>
+        </div>
+      </div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:280px;margin:0 auto;">
         ${SPHERES.slice(0,9).map(s => `
           <div style="background:var(--surface2);border-radius:14px;padding:12px 8px;text-align:center;border:1px solid var(--border);">
@@ -1768,10 +1782,13 @@ function bindProfile(container) {
   });
 
   container.querySelector('#btn-share')?.addEventListener('click', () => {
-    if (tg.switchInlineQuery) {
-      tg.switchInlineQuery('Попробуй Портфель жизни!');
+    const botUrl = 'https://t.me/lifeportfoliobot';
+    const text = 'Попробуй Портфель жизни — трекер баланса по 9 сферам жизни 🌟';
+    const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(botUrl)}&text=${encodeURIComponent(text)}`;
+    if (tg.openTelegramLink) {
+      tg.openTelegramLink(shareUrl);
     } else {
-      showToast('Поделись ссылкой на бота');
+      window.open(shareUrl, '_blank');
     }
   });
 }
