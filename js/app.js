@@ -235,17 +235,17 @@ function renderOnboardingStep1() {
       <div style="font-family:'Syne',sans-serif;font-size:26px;font-weight:800;letter-spacing:-0.02em;margin-bottom:8px;">Привет, ${name}!</div>
       <div style="font-size:15px;color:var(--text-dim);margin-bottom:24px;line-height:1.6;">Твой личный трекер баланса жизни</div>
       <div style="display:flex;flex-direction:column;gap:10px;max-width:300px;margin:0 auto 24px;text-align:left;">
-        <div style="display:flex;align-items:center;gap:12px;background:var(--surface2);border-radius:14px;padding:12px 16px;border:1px solid var(--border);">
-          <span style="font-size:22px;">🎯</span>
-          <span style="font-size:13px;color:var(--text-dim);line-height:1.4;">Оцени 9 сфер жизни и увидь, где нужно внимание</span>
+        <div style="display:flex;align-items:flex-start;gap:14px;background:var(--surface2);border-radius:16px;padding:14px 16px;border:1px solid var(--border);">
+          <span style="font-size:24px;flex-shrink:0;margin-top:1px;">🎯</span>
+          <span style="font-size:13px;color:var(--text);line-height:1.5;">Оцени 9 сфер жизни и выбери какую прокачать</span>
         </div>
-        <div style="display:flex;align-items:center;gap:12px;background:var(--surface2);border-radius:14px;padding:12px 16px;border:1px solid var(--border);">
-          <span style="font-size:22px;">✅</span>
-          <span style="font-size:13px;color:var(--text-dim);line-height:1.4;">Выполняй рутины и отмечай их каждый день</span>
+        <div style="display:flex;align-items:flex-start;gap:14px;background:var(--surface2);border-radius:16px;padding:14px 16px;border:1px solid var(--border);">
+          <span style="font-size:24px;flex-shrink:0;margin-top:1px;">✅</span>
+          <span style="font-size:13px;color:var(--text);line-height:1.5;">Выбирай рутины из библиотеки или добавляй свои, отмечай выполненные</span>
         </div>
-        <div style="display:flex;align-items:center;gap:12px;background:var(--surface2);border-radius:14px;padding:12px 16px;border:1px solid var(--border);">
-          <span style="font-size:22px;">📈</span>
-          <span style="font-size:13px;color:var(--text-dim);line-height:1.4;">Следи за прогрессом и стреком без перерыва</span>
+        <div style="display:flex;align-items:flex-start;gap:14px;background:var(--surface2);border-radius:16px;padding:14px 16px;border:1px solid var(--border);">
+          <span style="font-size:24px;flex-shrink:0;margin-top:1px;">📈</span>
+          <span style="font-size:13px;color:var(--text);line-height:1.5;">Следи за прогрессом и анализируй улучшения</span>
         </div>
       </div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:280px;margin:0 auto;">
