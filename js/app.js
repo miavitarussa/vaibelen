@@ -197,6 +197,7 @@ function renderScreen(screen, params) {
     case 'library':       return renderLibrary(params);
     case 'progress':      return renderProgress();
     case 'profile':       return renderProfile();
+    case 'my-checklist':  return renderMyChecklist();
     default:              return renderDashboard();
   }
 }
@@ -898,6 +899,70 @@ function renderProgress() {
   `;
 }
 
+/* ---- 11б. МОИ ПРАКТИКИ — ЧЕКЛИСТ ---- */
+function renderMyChecklist() {
+  const myRoutines = Store.getMyRoutines();
+  const todayCheckins = Store.getCheckins();
+  const doneCount = myRoutines.filter(r => todayCheckins.includes(r.id)).length;
+
+  // Группируем по сферам
+  const bySphere = {};
+  myRoutines.forEach(r => {
+    if (!bySphere[r.sphere]) bySphere[r.sphere] = [];
+    bySphere[r.sphere].push(r);
+  });
+
+  const sphereBlocks = Object.entries(bySphere).map(([sphereId, routines]) => {
+    const sphere = getSphere(sphereId);
+    const items = routines.map(r => {
+      const done = todayCheckins.includes(r.id);
+      return `
+        <div class="checklist-item ${done ? 'done' : ''}" data-checkin="${r.id}" style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);">
+          <div class="checklist-box" data-checkin="${r.id}" style="width:24px;height:24px;border-radius:8px;border:2px solid ${done ? sphere.color : 'rgba(255,255,255,0.2)'};background:${done ? sphere.color : 'transparent'};flex-shrink:0;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;">
+            ${done ? '<span style="color:#000;font-size:14px;font-weight:700;">✓</span>' : ''}
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:14px;font-weight:600;color:${done ? 'var(--text-muted)' : 'var(--text)'};text-decoration:${done ? 'line-through' : 'none'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${r.emoji} ${r.title}</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">${r.duration_minutes} мин · ${r.difficulty === 'easy' ? 'лёгкая' : r.difficulty === 'medium' ? 'средняя' : 'сложная'}</div>
+          </div>
+        </div>`;
+    }).join('');
+
+    return `
+      <div class="section" style="margin-bottom:8px;">
+        <div class="section-title" style="color:${sphere.color};">${sphere.emoji} ${sphere.name}</div>
+        <div class="card-surface" style="padding:0 16px;">${items}</div>
+      </div>`;
+  }).join('');
+
+  const emptyState = myRoutines.length === 0 ? `
+    <div class="empty-state">
+      <div class="empty-emoji">📋</div>
+      <div class="empty-title">Нет практик</div>
+      <div class="empty-text">Добавь практики из библиотеки</div>
+      <button class="btn btn-primary" onclick="openLibrary()" style="margin-top:8px;">Открыть библиотеку</button>
+    </div>` : '';
+
+  return `
+    <div class="screen-header">
+      <div class="screen-title">Мои практики</div>
+      <div class="screen-subtitle">Сегодня выполнено ${doneCount} из ${myRoutines.length}</div>
+    </div>
+
+    ${myRoutines.length > 0 ? `
+    <div style="padding:0 16px 12px;">
+      <div style="background:var(--surface);border-radius:12px;overflow:hidden;">
+        <div style="height:6px;background:var(--border);">
+          <div style="height:100%;width:${myRoutines.length > 0 ? Math.round(doneCount/myRoutines.length*100) : 0}%;background:var(--accent-main);border-radius:6px;transition:width .3s;"></div>
+        </div>
+      </div>
+    </div>` : ''}
+
+    ${emptyState}
+    ${sphereBlocks}
+  `;
+}
+
 /* ---- 12. ПРОФИЛЬ ---- */
 function renderProfile() {
   const user = tg.initDataUnsafe?.user || {};
@@ -935,9 +1000,9 @@ function renderProfile() {
           <div class="stat-num" style="color:#ff9500;">🔥${streak}</div>
           <div class="stat-label">Серия дней</div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card" id="btn-my-checklist" style="cursor:pointer;">
           <div class="stat-num">${myRoutines.length}</div>
-          <div class="stat-label">Моих практик</div>
+          <div class="stat-label">Моих практик →</div>
         </div>
         <div class="stat-card">
           <div class="stat-num">${totalCheckins}</div>
@@ -1497,6 +1562,7 @@ function bindScreen(screen, params, container) {
   if (screen === 'library')     bindLibrary(container);
   if (screen === 'progress')    bindProgress(container);
   if (screen === 'profile')     bindProfile(container);
+  if (screen === 'my-checklist') bindMyChecklist(container);
 }
 
 function bindOnboarding(container) {
@@ -1764,7 +1830,24 @@ function bindProgress(container) {
   container.querySelector('#btn-go-pro')?.addEventListener('click', openProModal);
 }
 
+function bindMyChecklist(container) {
+  container.querySelectorAll('[data-checkin]').forEach(el => {
+    if (!el.classList.contains('checklist-box')) return;
+    el.addEventListener('click', () => {
+      const id = el.dataset.checkin;
+      Store.toggleCheckin(id);
+      tg.HapticFeedback.impactOccurred('light');
+      navigate('my-checklist');
+    });
+  });
+}
+
 function bindProfile(container) {
+  container.querySelector('#btn-my-checklist')?.addEventListener('click', () => {
+    pushHistory('profile', {});
+    navigate('my-checklist');
+  });
+
   container.querySelector('#btn-reeval-profile')?.addEventListener('click', openReevalModal);
 
   container.querySelector('#btn-go-pro-profile')?.addEventListener('click', openProModal);
