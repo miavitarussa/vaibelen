@@ -35,31 +35,88 @@
     (function() {
       const canvas = document.getElementById('stars-canvas');
       const ctx = canvas.getContext('2d');
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      const stars = Array.from({length: 120}, () => ({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        r: Math.random() * 2.5 + 0.5,
-        alpha: Math.random(),
-        speed: Math.random() * 0.4 + 0.1,
-        twinkle: Math.random() * 0.02 + 0.005,
+      const W = canvas.width  = window.innerWidth;
+      const H = canvas.height = window.innerHeight;
+
+      // Звёзды
+      const stars = Array.from({length: 160}, () => ({
+        x: Math.random() * W,
+        y: Math.random() * H * 0.75,
+        r: Math.random() * 2.2 + 0.4,
+        alpha: Math.random() * 0.7 + 0.3,
+        speed: Math.random() * 0.35 + 0.08,
+        twinkle: Math.random() * 0.015 + 0.004,
         dir: Math.random() > 0.5 ? 1 : -1
       }));
+
+      function drawMountains() {
+        // Дальние горы (светлее)
+        ctx.beginPath();
+        ctx.moveTo(0, H);
+        ctx.lineTo(0, H * 0.68);
+        ctx.lineTo(W * 0.08, H * 0.52);
+        ctx.lineTo(W * 0.18, H * 0.63);
+        ctx.lineTo(W * 0.28, H * 0.44);
+        ctx.lineTo(W * 0.38, H * 0.58);
+        ctx.lineTo(W * 0.50, H * 0.40);
+        ctx.lineTo(W * 0.62, H * 0.55);
+        ctx.lineTo(W * 0.72, H * 0.42);
+        ctx.lineTo(W * 0.82, H * 0.57);
+        ctx.lineTo(W * 0.92, H * 0.46);
+        ctx.lineTo(W, H * 0.60);
+        ctx.lineTo(W, H);
+        ctx.closePath();
+        ctx.fillStyle = '#0d1128';
+        ctx.fill();
+
+        // Ближние горы (темнее)
+        ctx.beginPath();
+        ctx.moveTo(0, H);
+        ctx.lineTo(0, H * 0.80);
+        ctx.lineTo(W * 0.12, H * 0.64);
+        ctx.lineTo(W * 0.22, H * 0.74);
+        ctx.lineTo(W * 0.35, H * 0.58);
+        ctx.lineTo(W * 0.45, H * 0.70);
+        ctx.lineTo(W * 0.55, H * 0.60);
+        ctx.lineTo(W * 0.65, H * 0.72);
+        ctx.lineTo(W * 0.76, H * 0.56);
+        ctx.lineTo(W * 0.86, H * 0.68);
+        ctx.lineTo(W, H * 0.62);
+        ctx.lineTo(W, H);
+        ctx.closePath();
+        ctx.fillStyle = '#080c1a';
+        ctx.fill();
+      }
+
       function draw() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        // Фон — градиент неба
+        const grad = ctx.createLinearGradient(0, 0, 0, H);
+        grad.addColorStop(0, '#050810');
+        grad.addColorStop(0.6, '#0b0f20');
+        grad.addColorStop(1, '#111828');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, W, H);
+
+        // Звёзды
         stars.forEach(s => {
           s.alpha += s.twinkle * s.dir;
-          if (s.alpha >= 1 || s.alpha <= 0.1) s.dir *= -1;
+          if (s.alpha >= 1 || s.alpha <= 0.2) s.dir *= -1;
           s.y -= s.speed;
-          if (s.y < -5) { s.y = canvas.height + 5; s.x = Math.random() * canvas.width; }
+          if (s.y < -5) { s.y = H * 0.75; s.x = Math.random() * W; }
           ctx.beginPath();
           ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(180,160,255,${s.alpha})`;
-          ctx.shadowBlur = s.r > 1.5 ? 8 : 0;
-          ctx.shadowColor = '#6c4bff';
+          ctx.fillStyle = `rgba(200,185,255,${s.alpha})`;
+          if (s.r > 1.5) {
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = 'rgba(108,75,255,0.8)';
+          } else {
+            ctx.shadowBlur = 0;
+          }
           ctx.fill();
+          ctx.shadowBlur = 0;
         });
+
+        drawMountains();
         requestAnimationFrame(draw);
       }
       draw();
