@@ -1946,6 +1946,55 @@ function bindDashboard(container) {
   container.querySelectorAll('.btn-add-routine').forEach(btn => {
     btn.addEventListener('click', () => openLibrary(btn.dataset.sphere));
   });
+
+  // Свайп вверх для выполненных карточек
+  container.querySelectorAll('.checkin-card').forEach(card => {
+    let startY = 0, startX = 0, swiping = false;
+
+    card.addEventListener('touchstart', e => {
+      startY = e.touches[0].clientY;
+      startX = e.touches[0].clientX;
+      swiping = false;
+    }, { passive: true });
+
+    card.addEventListener('touchmove', e => {
+      const dy = e.touches[0].clientY - startY;
+      const dx = e.touches[0].clientX - startX;
+      const isDone = card.querySelector('.checkin-btn.done');
+      if (!isDone) return;
+      // Только вертикальный свайп вверх, не мешаем горизонтальному скроллу
+      if (!swiping && Math.abs(dy) > Math.abs(dx) && dy < 0) swiping = true;
+      if (!swiping) return;
+      e.preventDefault();
+      const offset = Math.min(0, dy);
+      card.style.transform = `translateY(${offset}px)`;
+      card.style.opacity = String(Math.max(0, 1 + offset / 80));
+    }, { passive: false });
+
+    card.addEventListener('touchend', e => {
+      const dy = e.changedTouches[0].clientY - startY;
+      const isDone = card.querySelector('.checkin-btn.done');
+      if (!isDone || !swiping) {
+        card.style.transform = '';
+        card.style.opacity = '';
+        return;
+      }
+      if (dy < -55) {
+        card.classList.add('swipe-dismiss');
+        tg.HapticFeedback.notificationOccurred('success');
+        setTimeout(() => {
+          card.style.width = '0';
+          card.style.padding = '0';
+          card.style.margin = '0';
+          card.style.overflow = 'hidden';
+          setTimeout(() => card.remove(), 200);
+        }, 250);
+      } else {
+        card.style.transform = '';
+        card.style.opacity = '';
+      }
+    }, { passive: true });
+  });
 }
 
 function bindSphereList(container) {

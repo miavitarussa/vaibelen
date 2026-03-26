@@ -324,6 +324,8 @@ input[type="range"]::-webkit-slider-thumb:active { transform: scale(1.2); }
 /* --- Drag & Drop (Organize Day) --- */
 .sort-ghost { opacity: 0.3; background: var(--accent-main) !important; border-radius: 10px; }
 .sort-item:active { cursor: grabbing; }
+.checkin-card { transition: transform 0.15s ease, opacity 0.15s ease; }
+.checkin-card.swipe-dismiss { transform: translateY(-80px) scale(0.9) !important; opacity: 0 !important; transition: transform 0.25s ease, opacity 0.25s ease; }
 
 /* --- Toast --- */
 .toast { position: fixed; bottom: calc(80px + var(--safe-bottom) + 8px); left: 50%; transform: translateX(-50%) translateY(20px); background: var(--surface3); border: 1px solid var(--border2); border-radius: var(--r-md); padding: 10px 16px; font-size: 13px; font-weight: 500; z-index: 300; white-space: nowrap; opacity: 0; pointer-events: none; transition: all 280ms ease; box-shadow: 0 8px 24px rgba(0,0,0,0.5); }
