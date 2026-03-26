@@ -53,7 +53,7 @@ const Store = {
     return { ...d, ...this.get('scores', {}) };
   },
 
-  // Мои рутины (добавленные пользователем)
+  // Мои практики (добавленные пользователем)
   getMyRoutines() { return this.get('my_routines', []); },
   setMyRoutines(list) { this.set('my_routines', list); },
   addRoutine(routine) {
@@ -241,7 +241,7 @@ function renderOnboardingStep1() {
         </div>
         <div style="display:flex;align-items:flex-start;gap:14px;background:var(--surface2);border-radius:16px;padding:14px 16px;border:1px solid var(--border);">
           <span style="font-size:24px;flex-shrink:0;margin-top:1px;">✅</span>
-          <span style="font-size:13px;color:var(--text);line-height:1.5;">Выбирай рутины из библиотеки или добавляй свои, отмечай выполненные</span>
+          <span style="font-size:13px;color:var(--text);line-height:1.5;">Выбирай практики из библиотеки или добавляй свои, отмечай выполненные</span>
         </div>
         <div style="display:flex;align-items:flex-start;gap:14px;background:var(--surface2);border-radius:16px;padding:14px 16px;border:1px solid var(--border);">
           <span style="font-size:24px;flex-shrink:0;margin-top:1px;">📈</span>
@@ -299,13 +299,13 @@ function renderOnboardingStep3() {
   let minSphere = SPHERES[0];
   SPHERES.forEach(s => { if ((scores[s.id] || 5) < (scores[minSphere.id] || 5)) minSphere = s; });
 
-  // Первая рутина для этой сферы
+  // Первая практика для этой сферы
   const routine = getRoutinesBySphere(minSphere.id)[0];
 
   return `
     <div>
       <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;letter-spacing:-0.02em;margin-bottom:6px;">Начни с малого</div>
-      <div style="font-size:13px;color:var(--text-muted);margin-bottom:20px;">Твоя сфера "${minSphere.name}" требует внимания. Вот рутина на 5 минут:</div>
+      <div style="font-size:13px;color:var(--text-muted);margin-bottom:20px;">Твоя сфера "${minSphere.name}" требует внимания. Вот практика на 5 минут:</div>
 
       ${routine ? `
         <div style="background:linear-gradient(135deg,${minSphere.color}15,${minSphere.color}08);border:1px solid ${minSphere.color}25;border-radius:20px;padding:20px;margin-bottom:20px;">
@@ -321,7 +321,7 @@ function renderOnboardingStep3() {
           </div>
         </div>
         <button class="btn btn-primary btn-full" id="btn-add-first" data-id="${routine.id}">
-          ✓ Добавить в мои рутины
+          ✓ Добавить в мои практики
         </button>
         <button class="btn btn-ghost btn-full" id="btn-skip-routine" style="margin-top:8px;">
           Пропустить
@@ -433,7 +433,7 @@ function renderDashboard() {
             ${doneCount === totalCount && totalCount > 0
               ? '✅ Всё выполнено!'
               : totalCount === 0
-                ? 'Добавь рутины из библиотеки'
+                ? 'Добавь практики из библиотеки'
                 : `Осталось ${totalCount - doneCount}`}
           </div>
           <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;">
@@ -458,7 +458,7 @@ function renderDashboard() {
                 <span>${s.emoji}</span><span>${s.name}</span>
                 <span style="color:${s.color};font-family:'Syne',sans-serif;font-weight:800;font-size:13px;">${scores[s.id]}/10</span>
               </div>
-              <button class="btn-add-routine" data-sphere="${s.id}" onclick="openLibrary('${s.id}')">+ Рутина</button>
+              <button class="btn-add-routine" data-sphere="${s.id}" onclick="openLibrary('${s.id}')">+ Практика</button>
             </div>
           `).join('')}
         </div>
@@ -468,7 +468,7 @@ function renderDashboard() {
     <!-- Быстрые чекины -->
     ${myRoutines.length > 0 ? `
       <div class="section anim-5">
-        <div class="section-title">Рутины сегодня</div>
+        <div class="section-title">Практики сегодня</div>
         <div class="checkins-scroll">
           ${myRoutines.map(r => {
             const s = getSphere(r.sphere);
@@ -491,8 +491,8 @@ function renderDashboard() {
       <div class="section anim-4">
         <div class="empty-state" style="padding:30px 0;">
           <div class="empty-emoji">🌱</div>
-          <div class="empty-title">Нет рутин</div>
-          <div class="empty-text">Добавь первую рутину из библиотеки и начни строить привычки</div>
+          <div class="empty-title">Нет практик</div>
+          <div class="empty-text">Добавь первую практику из библиотеки и начни строить привычки</div>
           <button class="btn btn-primary" onclick="openLibrary()" style="margin-top:8px;">Открыть библиотеку</button>
         </div>
       </div>
@@ -586,7 +586,7 @@ function renderSphereDetail(sphereId) {
         <div>
           <div style="font-size:11px;color:var(--text-muted);">Текущая оценка</div>
           <div style="font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:${sphere.color};">${score}/10</div>
-          <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">${myRoutines.length} активных рутин</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">${myRoutines.length} активных практик</div>
           <button class="btn btn-sm btn-ghost" id="btn-edit-score" data-sphere="${sphereId}" style="margin-top:8px;">Изменить оценку</button>
         </div>
       </div>
@@ -613,9 +613,9 @@ function renderSphereDetail(sphereId) {
       </div>
     ` : ''}
 
-    <!-- Список рутин -->
+    <!-- Список практик -->
     <div class="section">
-      <div class="section-title">Мои рутины</div>
+      <div class="section-title">Мои практики</div>
       <div id="routines-list">
         ${tabRoutines.length > 0 ? tabRoutines.map(r => {
           const done = todayCheckins.includes(r.id);
@@ -646,7 +646,7 @@ function renderSphereDetail(sphereId) {
           <div class="empty-state" style="padding:24px 0;">
             <div class="empty-emoji">🌱</div>
             <div class="empty-title">Пусто</div>
-            <div class="empty-text">Добавь рутины из библиотеки и начни прокачивать эту сферу</div>
+            <div class="empty-text">Добавь практики из библиотеки и начни прокачивать эту сферу</div>
           </div>
         `}
       </div>
@@ -679,14 +679,14 @@ function renderLibrary(params = {}) {
 
   return `
     <div class="screen-header">
-      <div class="screen-title">Библиотека рутин</div>
-      <div class="screen-subtitle">${ROUTINES.length} рутин по всем сферам</div>
+      <div class="screen-title">Библиотека практик</div>
+      <div class="screen-subtitle">${ROUTINES.length} практик по всем сферам</div>
     </div>
 
     <div class="section">
       <div class="search-bar">
         <span class="search-icon">🔍</span>
-        <input type="text" id="lib-search" placeholder="Поиск рутин..." value="${filter.query}" autocomplete="off">
+        <input type="text" id="lib-search" placeholder="Поиск практик..." value="${filter.query}" autocomplete="off">
       </div>
     </div>
 
@@ -710,13 +710,13 @@ function renderLibrary(params = {}) {
       </div>
     </div>
 
-    <!-- Кастомные рутины пользователя в библиотеке -->
+    <!-- Кастомные практики пользователя в библиотеке -->
     ${(() => {
       const custom = Store.getMyRoutines().filter(r => r.is_custom);
       if (!custom.length) return '';
       return `
         <div class="section" style="margin-bottom:10px;">
-          <div class="section-title">Мои рутины ✦</div>
+          <div class="section-title">Мои практики ✦</div>
           ${custom.map(r => {
             const s = getSphere(r.sphere);
             return `
@@ -740,7 +740,7 @@ function renderLibrary(params = {}) {
       `;
     })()}
 
-    <!-- Кнопка добавить свою рутину -->
+    <!-- Кнопка добавить свою практику -->
     <div class="section" style="margin-bottom:4px;">
       <button id="fab-create-routine" style="
         width:100%;display:flex;align-items:center;justify-content:center;gap:10px;
@@ -749,12 +749,12 @@ function renderLibrary(params = {}) {
         font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;
       ">
         <span style="font-size:20px;line-height:1;">+</span>
-        Создать свою рутину
+        Создать свою практику
       </button>
     </div>
 
     <div class="section">
-      <div class="section-title">${routines.length} рутин</div>
+      <div class="section-title">${routines.length} практик</div>
       <div id="library-list">
         ${routines.length > 0 ? routines.map(r => {
           const s = getSphere(r.sphere);
@@ -839,7 +839,7 @@ function renderProgress() {
         </div>
         <div class="stat-card">
           <div class="stat-num">${myRoutines.length}</div>
-          <div class="stat-label">Активных рутин</div>
+          <div class="stat-label">Активных практик</div>
         </div>
       </div>
     </div>
@@ -931,7 +931,7 @@ function renderProfile() {
         </div>
         <div class="stat-card">
           <div class="stat-num">${myRoutines.length}</div>
-          <div class="stat-label">Моих рутин</div>
+          <div class="stat-label">Моих практик</div>
         </div>
         <div class="stat-card">
           <div class="stat-num">${totalCheckins}</div>
@@ -1114,11 +1114,11 @@ function renderHeatmap(sphereId) {
     const d = new Date(); d.setDate(d.getDate() - i);
     const key = d.toISOString().slice(0, 10);
     const checkins = Store.getCheckins(key);
-    // Считаем только чекины по рутинам этой сферы
+    // Считаем только чекины по практикам этой сферы
     const myRoutines = Store.getMyRoutines().filter(r => r.sphere === sphereId);
     const count = myRoutines.filter(r => checkins.includes(r.id)).length;
     const lvl = count === 0 ? 0 : count === 1 ? 1 : count === 2 ? 2 : count === 3 ? 3 : 4;
-    cells.push(`<div class="heatmap-cell hm-${lvl}" title="${key}: ${count} рутин"></div>`);
+    cells.push(`<div class="heatmap-cell hm-${lvl}" title="${key}: ${count} практик"></div>`);
   }
 
   return `
@@ -1152,9 +1152,9 @@ function closeModal() {
   document.getElementById('modal-container').innerHTML = '';
 }
 
-// Модал: карточка рутины (ищет в библиотеке и в кастомных)
+// Модал: карточка практики (ищет в библиотеке и в кастомных)
 function openRoutineModal(routineId) {
-  // Кастомная рутина → открыть форму редактирования
+  // Кастомная практика → открыть форму редактирования
   const custom = Store.getMyRoutines().find(x => x.id === routineId && x.is_custom);
   if (custom) { openEditRoutineModal(custom); return; }
 
@@ -1177,15 +1177,15 @@ function openRoutineModal(routineId) {
       🔬 <em>${r.science_note}</em>
     </div>
     <button class="btn btn-full ${added ? 'btn-ghost' : 'btn-primary'}" id="modal-add-btn" data-id="${r.id}">
-      ${added ? '✓ Уже добавлена' : '+ Добавить в мои рутины'}
+      ${added ? '✓ Уже добавлена' : '+ Добавить в мои практики'}
     </button>
-    ${added ? `<button class="btn btn-full btn-danger" id="modal-remove-btn" data-id="${r.id}" style="margin-top:8px;">Удалить из моих рутин</button>` : ''}
+    ${added ? `<button class="btn btn-full btn-danger" id="modal-remove-btn" data-id="${r.id}" style="margin-top:8px;">Удалить из моих практик</button>` : ''}
   `);
 
   document.getElementById('modal-add-btn')?.addEventListener('click', () => {
     if (!added) {
       Store.addRoutine(r);
-      showToast('Рутина добавлена! 🎉', 'success');
+      showToast('Практика добавлена! 🎉', 'success');
       tg.HapticFeedback.notificationOccurred('success');
       closeModal();
       refreshCurrentScreen();
@@ -1194,7 +1194,7 @@ function openRoutineModal(routineId) {
 
   document.getElementById('modal-remove-btn')?.addEventListener('click', () => {
     Store.removeRoutine(r.id);
-    showToast('Рутина удалена');
+    showToast('Практика удалена');
     closeModal();
     refreshCurrentScreen();
   });
@@ -1240,7 +1240,7 @@ function openReevalModal() {
   });
 }
 
-// Форма создания/редактирования своей рутины
+// Форма создания/редактирования своей практики
 function renderRoutineFormHTML(data = {}) {
   const d = {
     emoji: '⭐', title: '', description: '',
@@ -1266,7 +1266,7 @@ function renderRoutineFormHTML(data = {}) {
       <label class="form-label">Эмодзи и название</label>
       <div style="display:flex;gap:8px;">
         <input class="form-input" id="rf-emoji" value="${d.emoji}" maxlength="4" style="width:56px;text-align:center;font-size:22px;padding:8px;flex-shrink:0;">
-        <input class="form-input" id="rf-title" placeholder="Название рутины" value="${d.title}" style="flex:1;">
+        <input class="form-input" id="rf-title" placeholder="Название практики" value="${d.title}" style="flex:1;">
       </div>
     </div>
 
@@ -1361,7 +1361,7 @@ function bindRoutineForm(onSave) {
     const title = document.getElementById('rf-title').value.trim();
     if (!title) {
       document.getElementById('rf-title').focus();
-      showToast('Введи название рутины', 'error');
+      showToast('Введи название практики', 'error');
       return;
     }
     const routine = {
@@ -1381,13 +1381,13 @@ function bindRoutineForm(onSave) {
   });
 }
 
-// Открыть модал создания рутины
+// Открыть модал создания практики
 function openCreateRoutineModal(prefillSphere = null) {
   openModal(`
     <div class="sheet-handle"></div>
-    <div class="sheet-title">Создать свою рутину</div>
+    <div class="sheet-title">Создать свою практику</div>
     ${renderRoutineFormHTML({ sphere: prefillSphere || 'health' })}
-    <button class="btn btn-primary btn-full" id="rf-save" style="margin-top:4px;">Создать рутину</button>
+    <button class="btn btn-primary btn-full" id="rf-save" style="margin-top:4px;">Создать практику</button>
     <button class="btn btn-ghost btn-full" onclick="closeModal()" style="margin-top:8px;">Отмена</button>
   `);
 
@@ -1395,20 +1395,20 @@ function openCreateRoutineModal(prefillSphere = null) {
     routine.id = 'custom_' + Date.now();
     Store.addRoutine(routine);
     tg.HapticFeedback.notificationOccurred('success');
-    showToast('Рутина создана! ✦', 'success');
+    showToast('Практика создана! ✦', 'success');
     closeModal();
     refreshCurrentScreen();
   });
 }
 
-// Открыть модал редактирования кастомной рутины
+// Открыть модал редактирования кастомной практики
 function openEditRoutineModal(routineData) {
   openModal(`
     <div class="sheet-handle"></div>
-    <div class="sheet-title">Редактировать рутину</div>
+    <div class="sheet-title">Редактировать практику</div>
     ${renderRoutineFormHTML(routineData)}
     <button class="btn btn-primary btn-full" id="rf-save" style="margin-top:4px;">Сохранить изменения</button>
-    <button class="btn btn-danger btn-full" id="rf-delete" style="margin-top:8px;">Удалить рутину</button>
+    <button class="btn btn-danger btn-full" id="rf-delete" style="margin-top:8px;">Удалить практику</button>
     <button class="btn btn-ghost btn-full" onclick="closeModal()" style="margin-top:8px;">Отмена</button>
   `);
 
@@ -1424,7 +1424,7 @@ function openEditRoutineModal(routineData) {
 
   document.getElementById('rf-delete')?.addEventListener('click', () => {
     Store.removeRoutine(routineData.id);
-    showToast('Рутина удалена');
+    showToast('Практика удалена');
     closeModal();
     refreshCurrentScreen();
   });
@@ -1457,11 +1457,11 @@ function pluralDays(n) {
 }
 
 function pluralRoutines(n) {
-  if (n % 100 >= 11 && n % 100 <= 14) return 'рутин';
+  if (n % 100 >= 11 && n % 100 <= 14) return 'практик';
   const m = n % 10;
-  if (m === 1) return 'рутина';
-  if (m >= 2 && m <= 4) return 'рутины';
-  return 'рутин';
+  if (m === 1) return 'практика';
+  if (m >= 2 && m <= 4) return 'практики';
+  return 'практик';
 }
 
 function openLibrary(sphereId) {
@@ -1622,7 +1622,7 @@ function bindSphereDetail(container, sphereId) {
     });
   });
 
-  // Тап по карточке рутины → модал
+  // Тап по карточке практики → модал
   container.querySelectorAll('.routine-item[data-routine]').forEach(item => {
     item.addEventListener('click', e => {
       if (e.target.classList.contains('check-circle') || e.target.closest('.check-circle')) return;
@@ -1649,17 +1649,17 @@ function bindSphereDetail(container, sphereId) {
   // Изменить оценку
   container.querySelector('#btn-edit-score')?.addEventListener('click', openReevalModal);
 
-  // Удалить свою рутину
+  // Удалить свою практику
   container.querySelectorAll('[data-delete-custom]').forEach(btn => {
     btn.addEventListener('click', e => {
       e.stopPropagation();
       Store.removeRoutine(btn.dataset.deleteCustom);
-      showToast('Рутина удалена');
+      showToast('Практика удалена');
       navigate('sphere-detail', { sphereId }, false);
     });
   });
 
-  // Редактировать свою рутину
+  // Редактировать свою практику
   container.querySelectorAll('[data-edit-custom]').forEach(btn => {
     btn.addEventListener('click', e => {
       e.stopPropagation();
@@ -1706,7 +1706,7 @@ function bindLibrary(container) {
     navigate('library', {});
   });
 
-  // Добавить рутину
+  // Добавить практику
   container.querySelectorAll('[data-add]').forEach(btn => {
     btn.addEventListener('click', e => {
       e.stopPropagation();
@@ -1717,7 +1717,7 @@ function bindLibrary(container) {
         Store.addRoutine(r);
         btn.textContent = '✓';
         btn.className = 'btn btn-sm btn-ghost';
-        showToast('Рутина добавлена! 🎉', 'success');
+        showToast('Практика добавлена! 🎉', 'success');
         tg.HapticFeedback.notificationOccurred('success');
       }
     });
@@ -1731,7 +1731,7 @@ function bindLibrary(container) {
     });
   });
 
-  // Редактировать кастомную рутину (из секции "Мои рутины" в библиотеке)
+  // Редактировать кастомную практику (из секции "Мои практики" в библиотеке)
   container.querySelectorAll('[data-edit-custom]').forEach(btn => {
     btn.addEventListener('click', e => {
       e.stopPropagation();
@@ -1740,7 +1740,7 @@ function bindLibrary(container) {
     });
   });
 
-  // FAB: создать свою рутину
+  // FAB: создать свою практику
   container.querySelector('#fab-create-routine')?.addEventListener('click', () => {
     const sphere = State.libraryFilter.sphere !== 'all' ? State.libraryFilter.sphere : null;
     openCreateRoutineModal(sphere);
