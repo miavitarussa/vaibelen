@@ -22,41 +22,8 @@
 
   <!-- Экран загрузки (виден пока JS инициализируется) -->
   <div id="loading-screen" class="loading-screen">
+    <canvas id="stars-canvas" class="stars-canvas"></canvas>
     <div class="loading-content">
-      <div class="loading-radar">
-        <svg viewBox="0 0 120 120" width="120" height="120">
-          <defs>
-            <radialGradient id="radarGlow" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stop-color="#6c4bff" stop-opacity="0.3"/>
-              <stop offset="100%" stop-color="#6c4bff" stop-opacity="0"/>
-            </radialGradient>
-          </defs>
-          <!-- Фоновое свечение -->
-          <circle cx="60" cy="60" r="58" fill="url(#radarGlow)"/>
-          <!-- Концентрические кольца -->
-          <polygon class="radar-ring" points="60,18 81,29 92,52 81,75 60,86 39,75 28,52 39,29" fill="none" stroke="rgba(108,75,255,0.15)" stroke-width="1"/>
-          <polygon class="radar-ring" points="60,30 75,38 82,52 75,66 60,74 45,66 38,52 45,38" fill="none" stroke="rgba(108,75,255,0.25)" stroke-width="1"/>
-          <polygon class="radar-ring" points="60,42 70,48 74,52 70,62 60,68 50,62 46,52 50,48" fill="none" stroke="rgba(108,75,255,0.4)" stroke-width="1"/>
-          <!-- Оси -->
-          <line x1="60" y1="18" x2="60" y2="86" stroke="rgba(108,75,255,0.2)" stroke-width="0.5"/>
-          <line x1="28" y1="52" x2="92" y2="52" stroke="rgba(108,75,255,0.2)" stroke-width="0.5"/>
-          <line x1="39" y1="29" x2="81" y2="75" stroke="rgba(108,75,255,0.2)" stroke-width="0.5"/>
-          <line x1="81" y1="29" x2="39" y2="75" stroke="rgba(108,75,255,0.2)" stroke-width="0.5"/>
-          <!-- Заполненный радар -->
-          <polygon class="radar-fill" points="60,30 74,40 80,56 72,68 60,72 48,68 40,56 46,40" fill="rgba(108,75,255,0.2)" stroke="#6c4bff" stroke-width="1.5"/>
-          <!-- Точки на вершинах -->
-          <circle cx="60" cy="30" r="2.5" fill="#6c4bff"/>
-          <circle cx="74" cy="40" r="2.5" fill="#6c4bff"/>
-          <circle cx="80" cy="56" r="2.5" fill="#6c4bff"/>
-          <circle cx="72" cy="68" r="2.5" fill="#6c4bff"/>
-          <circle cx="60" cy="72" r="2.5" fill="#6c4bff"/>
-          <circle cx="48" cy="68" r="2.5" fill="#6c4bff"/>
-          <circle cx="40" cy="56" r="2.5" fill="#6c4bff"/>
-          <circle cx="46" cy="40" r="2.5" fill="#6c4bff"/>
-          <!-- Центр -->
-          <circle cx="60" cy="52" r="4" fill="#6c4bff" opacity="0.8"/>
-        </svg>
-      </div>
       <div class="loading-title">Портфель жизни</div>
       <div class="loading-subtitle">Твой путь к балансу</div>
       <div class="loading-dots">
@@ -64,6 +31,40 @@
       </div>
     </div>
   </div>
+  <script>
+    (function() {
+      const canvas = document.getElementById('stars-canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      const stars = Array.from({length: 120}, () => ({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 2.5 + 0.5,
+        alpha: Math.random(),
+        speed: Math.random() * 0.4 + 0.1,
+        twinkle: Math.random() * 0.02 + 0.005,
+        dir: Math.random() > 0.5 ? 1 : -1
+      }));
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        stars.forEach(s => {
+          s.alpha += s.twinkle * s.dir;
+          if (s.alpha >= 1 || s.alpha <= 0.1) s.dir *= -1;
+          s.y -= s.speed;
+          if (s.y < -5) { s.y = canvas.height + 5; s.x = Math.random() * canvas.width; }
+          ctx.beginPath();
+          ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(180,160,255,${s.alpha})`;
+          ctx.shadowBlur = s.r > 1.5 ? 8 : 0;
+          ctx.shadowColor = '#6c4bff';
+          ctx.fill();
+        });
+        requestAnimationFrame(draw);
+      }
+      draw();
+    })();
+  </script>
 
   <!-- Основной контейнер приложения (скрыт до инициализации) -->
   <div id="app" class="app hidden">
