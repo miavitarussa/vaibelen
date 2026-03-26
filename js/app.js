@@ -753,6 +753,12 @@ function renderLibrary(params = {}) {
       </button>
     </div>
 
+    ${filter.subcategory === 'vitamins' ? `
+    <div style="margin:0 0 12px;padding:12px 14px;background:rgba(255,200,50,0.08);border:1px solid rgba(255,200,50,0.25);border-radius:12px;display:flex;gap:10px;align-items:flex-start;">
+      <span style="font-size:18px;flex-shrink:0;">⚠️</span>
+      <span style="font-size:12px;color:var(--text-muted);line-height:1.5;">Практики с витаминами и добавками носят информационный характер. Перед приёмом любых добавок проконсультируйтесь с врачом — дозировки индивидуальны.</span>
+    </div>` : ''}
+
     <div class="section">
       <div class="section-title">${routines.length} практик</div>
       <div id="library-list">
