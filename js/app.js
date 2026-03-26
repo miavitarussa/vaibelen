@@ -198,8 +198,9 @@ function renderScreen(screen, params) {
     case 'progress':      return renderProgress();
     case 'profile':       return renderProfile();
     case 'my-checklist':  return renderMyChecklist();
-    case 'streak-detail': return renderStreakDetail();
-    default:              return renderDashboard();
+    case 'streak-detail':   return renderStreakDetail();
+    case 'checkins-detail': return renderCheckinsDetail();
+    default:                return renderDashboard();
   }
 }
 
@@ -900,7 +901,93 @@ function renderProgress() {
   `;
 }
 
-/* ---- 11а. СЕРИЯ ДНЕЙ — ДЕТАЛЬНЫЙ ЭКРАН ---- */
+/* ---- 11а. ЧЕКИНЫ — ДЕТАЛЬНЫЙ ЭКРАН ---- */
+function renderCheckinsDetail() {
+  const myRoutines = Store.getMyRoutines();
+  const today = new Date();
+
+  // Собираем данные за последние 14 дней
+  const days = [];
+  let totalCheckins = 0;
+  for (let i = 0; i < 14; i++) {
+    const d = new Date(today); d.setDate(d.getDate() - i);
+    const key = d.toISOString().slice(0, 10);
+    const checkins = Store.get('checkins_' + key, []);
+    days.push({ key, date: d, checkins });
+    totalCheckins += checkins.length;
+  }
+
+  // Топ практик за 7 дней
+  const countMap = {};
+  days.slice(0, 7).forEach(({ checkins }) => {
+    checkins.forEach(id => { countMap[id] = (countMap[id] || 0) + 1; });
+  });
+  const topRoutines = Object.entries(countMap)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
+    .map(([id, count]) => {
+      const r = myRoutines.find(x => x.id === id) || { title: id, emoji: '⭐', sphere: 'health' };
+      const sphere = getSphere(r.sphere);
+      const pct = Math.round(count / 7 * 100);
+      const medals = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
+      return { r, count, pct, sphere, medal: medals[Object.entries(countMap).sort((a,b)=>b[1]-a[1]).findIndex(([i])=>i===id)] };
+    });
+
+  const topHTML = topRoutines.length > 0
+    ? topRoutines.map(({ r, count, pct, sphere, medal }) => `
+      <div style="margin-bottom:12px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+          <div style="font-size:13px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:6px;">
+            <span>${medal}</span>
+            <span>${r.emoji} ${r.title}</span>
+          </div>
+          <div style="font-size:12px;color:var(--text-muted);">${count}/7 дней</div>
+        </div>
+        <div style="height:6px;background:rgba(255,255,255,0.07);border-radius:6px;overflow:hidden;">
+          <div style="height:100%;width:${pct}%;background:${sphere.color};border-radius:6px;transition:width .4s;"></div>
+        </div>
+      </div>`)
+    .join('')
+    : '<div style="color:var(--text-muted);font-size:13px;text-align:center;padding:12px 0;">Нет данных за эту неделю</div>';
+
+  // История по дням (последние 7)
+  const dayNames = ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
+  const historyHTML = days.slice(0, 7).map(({ date, checkins }, i) => {
+    const name = i === 0 ? 'Сегодня' : i === 1 ? 'Вчера' : dayNames[date.getDay()];
+    const count = checkins.length;
+    const maxCount = Math.max(...days.slice(0, 7).map(d => d.checkins.length), 1);
+    const barW = count > 0 ? Math.max(8, Math.round(count / maxCount * 100)) : 0;
+    return `
+      <div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border);">
+        <div style="width:44px;font-size:12px;color:${i === 0 ? 'var(--accent-main)' : 'var(--text-muted)'};flex-shrink:0;font-weight:${i===0?'700':'400'};">${name}</div>
+        <div style="flex:1;height:8px;background:rgba(255,255,255,0.05);border-radius:6px;overflow:hidden;">
+          ${count > 0 ? `<div style="height:100%;width:${barW}%;background:var(--accent-main);border-radius:6px;opacity:${i===0?1:0.6};"></div>` : ''}
+        </div>
+        <div style="width:28px;text-align:right;font-size:12px;color:${count > 0 ? 'var(--text)' : 'var(--text-muted)'};">${count > 0 ? count : '—'}</div>
+      </div>`;
+  }).join('');
+
+  return `
+    <div class="screen-header">
+      <div class="screen-title">Мои чекины</div>
+      <div class="screen-subtitle">Всего отмечено: ${totalCheckins} за 14 дней</div>
+    </div>
+
+    <!-- Топ практик -->
+    <div class="section">
+      <div class="section-title">Топ практик за неделю</div>
+      <div class="card-surface" style="padding:16px;">${topHTML}</div>
+    </div>
+
+    <!-- История по дням -->
+    <div class="section">
+      <div class="section-title">История по дням</div>
+      <div class="card-surface" style="padding:4px 16px;">${historyHTML}</div>
+    </div>
+  `;
+}
+
+/* ---- 11б. СЕРИЯ ДНЕЙ — ДЕТАЛЬНЫЙ ЭКРАН ---- */
 function renderStreakDetail() {
   const streak = Store.getStreak();
   const MILESTONES = [
@@ -1144,9 +1231,9 @@ function renderProfile() {
           <div class="stat-num">${myRoutines.length}</div>
           <div class="stat-label">Моих практик →</div>
         </div>
-        <div class="stat-card">
+        <div class="stat-card" id="btn-checkins-detail" style="cursor:pointer;">
           <div class="stat-num">${totalCheckins}</div>
-          <div class="stat-label">Всего чекинов</div>
+          <div class="stat-label">Чекинов →</div>
         </div>
       </div>
     </div>
@@ -1702,8 +1789,9 @@ function bindScreen(screen, params, container) {
   if (screen === 'library')     bindLibrary(container);
   if (screen === 'progress')    bindProgress(container);
   if (screen === 'profile')      bindProfile(container);
-  if (screen === 'my-checklist') bindMyChecklist(container);
-  if (screen === 'streak-detail') bindStreakDetail(container);
+  if (screen === 'my-checklist')   bindMyChecklist(container);
+  if (screen === 'streak-detail')  bindStreakDetail(container);
+  if (screen === 'checkins-detail') bindCheckinsDetail(container);
 }
 
 function bindOnboarding(container) {
@@ -1971,6 +2059,10 @@ function bindProgress(container) {
   container.querySelector('#btn-go-pro')?.addEventListener('click', openProModal);
 }
 
+function bindCheckinsDetail(_container) {
+  // Экран только для просмотра, интерактив не нужен
+}
+
 function bindStreakDetail(_container) {
   // Экран только для просмотра, интерактив не нужен
 }
@@ -1991,6 +2083,11 @@ function bindProfile(container) {
   container.querySelector('#btn-streak-detail')?.addEventListener('click', () => {
     pushHistory('profile', {});
     navigate('streak-detail');
+  });
+
+  container.querySelector('#btn-checkins-detail')?.addEventListener('click', () => {
+    pushHistory('profile', {});
+    navigate('checkins-detail');
   });
 
   container.querySelector('#btn-my-checklist')?.addEventListener('click', () => {
