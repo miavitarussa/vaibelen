@@ -321,6 +321,10 @@ input[type="range"]::-webkit-slider-thumb:active { transform: scale(1.2); }
 .sheet-handle { width: 36px; height: 4px; border-radius: var(--r-full); background: rgba(255,255,255,0.15); margin: 12px auto 20px; }
 .sheet-title { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 16px; }
 
+/* --- Drag & Drop (Organize Day) --- */
+.sort-ghost { opacity: 0.3; background: var(--accent-main) !important; border-radius: 10px; }
+.sort-item:active { cursor: grabbing; }
+
 /* --- Toast --- */
 .toast { position: fixed; bottom: calc(80px + var(--safe-bottom) + 8px); left: 50%; transform: translateX(-50%) translateY(20px); background: var(--surface3); border: 1px solid var(--border2); border-radius: var(--r-md); padding: 10px 16px; font-size: 13px; font-weight: 500; z-index: 300; white-space: nowrap; opacity: 0; pointer-events: none; transition: all 280ms ease; box-shadow: 0 8px 24px rgba(0,0,0,0.5); }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }

@@ -69,6 +69,10 @@ const Store = {
     this.setMyRoutines(this.getMyRoutines().filter(r => r.id !== id));
   },
   hasRoutine(id) { return !!this.getMyRoutines().find(r => r.id === id); },
+  updateRoutineBestTime(id, bestTime) {
+    const list = this.getMyRoutines().map(r => r.id === id ? { ...r, best_time: bestTime } : r);
+    this.setMyRoutines(list);
+  },
 
   // Чекины: { 'YYYY-MM-DD': ['routine_id', ...] }
   getCheckins(date) { return this.get('checkins_' + (date || todayKey()), []); },
@@ -200,6 +204,7 @@ function renderScreen(screen, params) {
     case 'my-checklist':  return renderMyChecklist();
     case 'streak-detail':   return renderStreakDetail();
     case 'checkins-detail': return renderCheckinsDetail();
+    case 'organize-day':    return renderOrganizeDay();
     default:                return renderDashboard();
   }
 }
@@ -901,7 +906,54 @@ function renderProgress() {
   `;
 }
 
-/* ---- 11а. ЧЕКИНЫ — ДЕТАЛЬНЫЙ ЭКРАН ---- */
+/* ---- 11а. ОРГАНИЗОВАТЬ ДЕНЬ ---- */
+function renderOrganizeDay() {
+  const myRoutines = Store.getMyRoutines();
+  const TIME_GROUPS = [
+    { id: 'morning',   emoji: '🌅', label: 'Утро' },
+    { id: 'afternoon', emoji: '☀️', label: 'День' },
+    { id: 'evening',   emoji: '🌙', label: 'Вечер' },
+    { id: 'anytime',   emoji: '⚡', label: 'В любое время' },
+  ];
+
+  const groupHTML = TIME_GROUPS.map(g => {
+    const items = myRoutines.filter(r => r.best_time === g.id);
+    const itemsHTML = items.map(r => {
+      const sphere = getSphere(r.sphere);
+      return `
+        <div class="sort-item" data-id="${r.id}" data-time="${g.id}"
+          style="display:flex;align-items:center;gap:10px;padding:11px 12px;background:var(--surface2);border-radius:10px;margin-bottom:6px;cursor:grab;touch-action:none;">
+          <span style="font-size:18px;flex-shrink:0;">${r.emoji}</span>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${r.title}</div>
+            <div style="font-size:11px;color:${sphere.color};margin-top:1px;">${sphere.name}</div>
+          </div>
+          <span style="font-size:18px;color:var(--text-muted);flex-shrink:0;cursor:grab;">≡</span>
+        </div>`;
+    }).join('');
+
+    return `
+      <div class="section" style="margin-bottom:8px;">
+        <div class="section-title">${g.emoji} ${g.label}</div>
+        <div class="sort-group card-surface" data-group="${g.id}" style="padding:10px;min-height:56px;">
+          ${itemsHTML || `<div class="sort-empty" style="text-align:center;padding:12px 0;font-size:12px;color:var(--text-muted);">Перетащи сюда практику</div>`}
+        </div>
+      </div>`;
+  }).join('');
+
+  return `
+    <div class="screen-header">
+      <div class="screen-title">Организовать день</div>
+      <div class="screen-subtitle">Перетащи практики в нужное время</div>
+    </div>
+    <div style="padding:0 16px 8px;font-size:12px;color:var(--text-muted);line-height:1.5;">
+      💡 Тяни карточку практики в блок нужного времени — дашборд сразу перестроится
+    </div>
+    ${groupHTML}
+  `;
+}
+
+/* ---- 11б. ЧЕКИНЫ — ДЕТАЛЬНЫЙ ЭКРАН ---- */
 function renderCheckinsDetail() {
   const myRoutines = Store.getMyRoutines();
   const today = new Date();
@@ -1262,6 +1314,11 @@ function renderProfile() {
     <div class="section">
       <div class="section-title">Настройки</div>
       <div class="card-surface" style="padding:0 16px;">
+        <div class="setting-row" id="btn-organize-day">
+          <span class="setting-icon">🗂️</span>
+          <span class="setting-label">Организовать день</span>
+          <span style="font-size:14px;color:var(--text-muted);">→</span>
+        </div>
         <div class="setting-row" id="btn-reeval-profile">
           <span class="setting-icon">🎯</span>
           <span class="setting-label">Переоценить колесо жизни</span>
@@ -1792,6 +1849,7 @@ function bindScreen(screen, params, container) {
   if (screen === 'my-checklist')   bindMyChecklist(container);
   if (screen === 'streak-detail')  bindStreakDetail(container);
   if (screen === 'checkins-detail') bindCheckinsDetail(container);
+  if (screen === 'organize-day')    bindOrganizeDay(container);
 }
 
 function bindOnboarding(container) {
@@ -2059,6 +2117,31 @@ function bindProgress(container) {
   container.querySelector('#btn-go-pro')?.addEventListener('click', openProModal);
 }
 
+function bindOrganizeDay(container) {
+  if (typeof Sortable === 'undefined') return;
+  const groups = container.querySelectorAll('.sort-group');
+  groups.forEach(group => {
+    Sortable.create(group, {
+      group: 'routines',
+      animation: 150,
+      handle: '.sort-item',
+      ghostClass: 'sort-ghost',
+      onEnd(evt) {
+        const id = evt.item.dataset.id;
+        const newTime = evt.to.dataset.group;
+        Store.updateRoutineBestTime(id, newTime);
+        tg.HapticFeedback.impactOccurred('light');
+        // Убираем заглушку если группа стала непустой
+        evt.to.querySelectorAll('.sort-empty').forEach(e => e.remove());
+        // Если группа откуда перетащили теперь пуста — показать заглушку
+        if (!evt.from.querySelector('.sort-item')) {
+          evt.from.innerHTML = '<div class="sort-empty" style="text-align:center;padding:12px 0;font-size:12px;color:var(--text-muted);">Перетащи сюда практику</div>';
+        }
+      }
+    });
+  });
+}
+
 function bindCheckinsDetail(_container) {
   // Экран только для просмотра, интерактив не нужен
 }
@@ -2093,6 +2176,11 @@ function bindProfile(container) {
   container.querySelector('#btn-my-checklist')?.addEventListener('click', () => {
     pushHistory('profile', {});
     navigate('my-checklist');
+  });
+
+  container.querySelector('#btn-organize-day')?.addEventListener('click', () => {
+    pushHistory('profile', {});
+    navigate('organize-day');
   });
 
   container.querySelector('#btn-reeval-profile')?.addEventListener('click', openReevalModal);
