@@ -76,36 +76,53 @@
       }));
 
       function drawMountains() {
-        // Дальние горы — плавные холмы
+        // Дальние горы — занимают нижнюю треть
         ctx.beginPath();
-        ctx.moveTo(0, H);
-        ctx.lineTo(0, H * 0.72);
-        ctx.bezierCurveTo(W*0.1, H*0.55, W*0.15, H*0.60, W*0.25, H*0.52);
-        ctx.bezierCurveTo(W*0.35, H*0.44, W*0.40, H*0.58, W*0.50, H*0.48);
-        ctx.bezierCurveTo(W*0.60, H*0.38, W*0.65, H*0.55, W*0.75, H*0.50);
-        ctx.bezierCurveTo(W*0.85, H*0.45, W*0.92, H*0.58, W, H*0.62);
-        ctx.lineTo(W, H);
+        ctx.moveTo(-10, H + 10);
+        ctx.lineTo(-10, H * 0.76);
+        // Плавный подъём слева
+        ctx.bezierCurveTo(W*0.05, H*0.76, W*0.10, H*0.70, W*0.18, H*0.66);
+        // Первый пик — мягкий
+        ctx.bezierCurveTo(W*0.22, H*0.63, W*0.24, H*0.61, W*0.27, H*0.62);
+        ctx.bezierCurveTo(W*0.30, H*0.63, W*0.33, H*0.67, W*0.37, H*0.68);
+        // Центральный высокий пик с острым но мягким верхом
+        ctx.bezierCurveTo(W*0.41, H*0.68, W*0.44, H*0.60, W*0.47, H*0.57);
+        ctx.bezierCurveTo(W*0.49, H*0.555, W*0.51, H*0.555, W*0.53, H*0.57);
+        // Спуск и второй пик
+        ctx.bezierCurveTo(W*0.56, H*0.60, W*0.59, H*0.65, W*0.63, H*0.64);
+        ctx.bezierCurveTo(W*0.67, H*0.63, W*0.70, H*0.60, W*0.73, H*0.61);
+        ctx.bezierCurveTo(W*0.76, H*0.62, W*0.79, H*0.66, W*0.83, H*0.67);
+        // Правый пик
+        ctx.bezierCurveTo(W*0.87, H*0.67, W*0.90, H*0.63, W*0.93, H*0.65);
+        ctx.bezierCurveTo(W*0.96, H*0.67, W*0.99, H*0.72, W+10, H*0.74);
+        ctx.lineTo(W+10, H+10);
         ctx.closePath();
-        const mgr = ctx.createLinearGradient(0, H*0.4, 0, H);
-        mgr.addColorStop(0, '#0d1535');
-        mgr.addColorStop(1, '#060a1a');
+        const mgr = ctx.createLinearGradient(0, H*0.55, 0, H);
+        mgr.addColorStop(0, '#0e1640');
+        mgr.addColorStop(0.4, '#080f28');
+        mgr.addColorStop(1, '#040810');
         ctx.fillStyle = mgr;
         ctx.fill();
 
-        // Ближние горы — темнее
+        // Ближние горы — самый нижний слой, темнее
         ctx.beginPath();
-        ctx.moveTo(0, H);
-        ctx.lineTo(0, H * 0.82);
-        ctx.bezierCurveTo(W*0.08, H*0.70, W*0.18, H*0.76, W*0.28, H*0.65);
-        ctx.bezierCurveTo(W*0.38, H*0.54, W*0.45, H*0.68, W*0.55, H*0.62);
-        ctx.bezierCurveTo(W*0.65, H*0.56, W*0.72, H*0.70, W*0.82, H*0.62);
-        ctx.bezierCurveTo(W*0.90, H*0.56, W*0.95, H*0.68, W, H*0.70);
-        ctx.lineTo(W, H);
+        ctx.moveTo(-10, H + 10);
+        ctx.lineTo(-10, H * 0.86);
+        ctx.bezierCurveTo(W*0.04, H*0.86, W*0.09, H*0.82, W*0.15, H*0.78);
+        ctx.bezierCurveTo(W*0.19, H*0.75, W*0.22, H*0.73, W*0.26, H*0.74);
+        ctx.bezierCurveTo(W*0.30, H*0.75, W*0.34, H*0.78, W*0.38, H*0.77);
+        // Главный ближний пик
+        ctx.bezierCurveTo(W*0.42, H*0.76, W*0.46, H*0.70, W*0.50, H*0.68);
+        ctx.bezierCurveTo(W*0.52, H*0.675, W*0.54, H*0.675, W*0.56, H*0.69);
+        ctx.bezierCurveTo(W*0.60, H*0.71, W*0.64, H*0.76, W*0.68, H*0.75);
+        ctx.bezierCurveTo(W*0.72, H*0.74, W*0.76, H*0.72, W*0.80, H*0.73);
+        ctx.bezierCurveTo(W*0.84, H*0.74, W*0.88, H*0.78, W*0.93, H*0.79);
+        ctx.bezierCurveTo(W*0.97, H*0.80, W+10, H*0.82, W+10, H*0.83);
+        ctx.lineTo(W+10, H+10);
         ctx.closePath();
-        ctx.fillStyle = '#05081500';
-        const mg2 = ctx.createLinearGradient(0, H*0.55, 0, H);
-        mg2.addColorStop(0, '#080c20');
-        mg2.addColorStop(1, '#030508');
+        const mg2 = ctx.createLinearGradient(0, H*0.68, 0, H);
+        mg2.addColorStop(0, '#06091e');
+        mg2.addColorStop(1, '#020408');
         ctx.fillStyle = mg2;
         ctx.fill();
       }
