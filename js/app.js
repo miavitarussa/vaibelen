@@ -198,6 +198,7 @@ function renderScreen(screen, params) {
     case 'progress':      return renderProgress();
     case 'profile':       return renderProfile();
     case 'my-checklist':  return renderMyChecklist();
+    case 'streak-detail': return renderStreakDetail();
     default:              return renderDashboard();
   }
 }
@@ -899,6 +900,145 @@ function renderProgress() {
   `;
 }
 
+/* ---- 11а. СЕРИЯ ДНЕЙ — ДЕТАЛЬНЫЙ ЭКРАН ---- */
+function renderStreakDetail() {
+  const streak = Store.getStreak();
+  const MILESTONES = [
+    { days: 3,   emoji: '🌱', label: '3 дня',      title: 'Первые шаги' },
+    { days: 7,   emoji: '🔥', label: 'Неделя',     title: 'Неделя силы' },
+    { days: 14,  emoji: '⚡', label: '2 недели',   title: 'Две недели' },
+    { days: 30,  emoji: '🏆', label: 'Месяц',      title: 'Месяц побед' },
+    { days: 60,  emoji: '💎', label: '2 месяца',   title: 'Бриллиант' },
+    { days: 100, emoji: '👑', label: '100 дней',   title: 'Легенда' },
+  ];
+
+  // Следующий milestone
+  const nextMilestone = MILESTONES.find(m => m.days > streak) || MILESTONES[MILESTONES.length - 1];
+  const prevMilestone = MILESTONES.filter(m => m.days <= streak).slice(-1)[0];
+  const prevDays = prevMilestone ? prevMilestone.days : 0;
+  const progress = nextMilestone.days > streak
+    ? Math.round((streak - prevDays) / (nextMilestone.days - prevDays) * 100)
+    : 100;
+
+  // Значки достижений
+  const badges = MILESTONES.map(m => {
+    const unlocked = streak >= m.days;
+    return `
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;">
+        <div style="width:52px;height:52px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:24px;
+          background:${unlocked ? 'rgba(108,75,255,0.2)' : 'rgba(255,255,255,0.04)'};
+          border:2px solid ${unlocked ? 'var(--accent-main)' : 'rgba(255,255,255,0.08)'};
+          filter:${unlocked ? 'none' : 'grayscale(1)'};
+          transition:all .3s;">
+          ${unlocked ? m.emoji : '🔒'}
+        </div>
+        <div style="font-size:10px;color:${unlocked ? 'var(--text)' : 'var(--text-muted)'};text-align:center;line-height:1.3;font-weight:${unlocked ? '600' : '400'};">${m.label}</div>
+      </div>`;
+  }).join('');
+
+  // Календарь последних 30 дней
+  const calCells = [];
+  const calLabels = [];
+  const today = new Date();
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date(today); d.setDate(d.getDate() - i);
+    const key = d.toISOString().slice(0, 10);
+    const checkins = Store.get('checkins_' + key, []);
+    const hasActivity = checkins.length > 0;
+    const isToday = i === 0;
+    calCells.push(`
+      <div style="width:100%;aspect-ratio:1;border-radius:6px;
+        background:${hasActivity ? 'var(--accent-main)' : 'rgba(255,255,255,0.05)'};
+        border:${isToday ? '2px solid rgba(108,75,255,0.6)' : 'none'};
+        opacity:${hasActivity ? '1' : '0.4'};
+        transition:all .2s;"
+        title="${key}">
+      </div>`);
+    if (i % 5 === 0 || i === 29) {
+      calLabels.push(`<div style="font-size:9px;color:var(--text-muted);text-align:center;">${d.getDate()}</div>`);
+    }
+  }
+
+  // Мотивационная фраза
+  const motivations = [
+    [0,  'Начни сегодня — первый день самый важный 🌱'],
+    [1,  'День 1! Ты начала — это уже победа 💪'],
+    [3,  'Три дня подряд — привычка начинает формироваться ✨'],
+    [7,  'Целая неделя! Ты уже лучше 80% людей 🔥'],
+    [14, 'Две недели — нейронные связи уже перестраиваются ⚡'],
+    [30, 'Месяц! Это уже не привычка — это часть тебя 🏆'],
+    [60, 'Два месяца. Ты — пример для окружающих 💎'],
+    [100,'100 дней. Легенда. Настоящая. 👑'],
+  ];
+  const phrase = [...motivations].reverse().find(([days]) => streak >= days)?.[1] || motivations[0][1];
+
+  return `
+    <div class="screen-header">
+      <div class="screen-title">Серия дней</div>
+      <div class="screen-subtitle">${streak > 0 ? 'Не останавливайся!' : 'Начни сегодня'}</div>
+    </div>
+
+    <!-- Главный блок стрика -->
+    <div class="section">
+      <div class="card-surface" style="padding:24px 20px;text-align:center;">
+        <div style="font-size:64px;line-height:1;margin-bottom:8px;filter:drop-shadow(0 0 20px rgba(255,149,0,0.5));">🔥</div>
+        <div style="font-family:'Syne',sans-serif;font-size:56px;font-weight:800;color:#ff9500;line-height:1;">${streak}</div>
+        <div style="font-size:16px;color:var(--text-muted);margin-top:4px;">${pluralDays(streak)} подряд</div>
+        <div style="font-size:13px;color:var(--text);margin-top:16px;line-height:1.5;font-style:italic;">${phrase}</div>
+      </div>
+    </div>
+
+    <!-- Прогресс к следующей медали -->
+    ${streak < 100 ? `
+    <div class="section">
+      <div class="section-title">До следующей медали</div>
+      <div class="card-surface" style="padding:16px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+          <div style="font-size:13px;color:var(--text);">
+            ${nextMilestone.emoji} <strong>${nextMilestone.title}</strong> — ${nextMilestone.label}
+          </div>
+          <div style="font-size:13px;color:var(--accent-main);font-weight:700;">
+            ${nextMilestone.days - streak} дн.
+          </div>
+        </div>
+        <div style="height:8px;background:rgba(255,255,255,0.07);border-radius:8px;overflow:hidden;">
+          <div style="height:100%;width:${progress}%;background:linear-gradient(90deg,var(--accent-main),#ff9500);border-radius:8px;transition:width .5s;"></div>
+        </div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:6px;text-align:right;">${streak} / ${nextMilestone.days} дней</div>
+      </div>
+    </div>` : `
+    <div class="section">
+      <div class="card-surface" style="padding:16px;text-align:center;">
+        <div style="font-size:32px;">👑</div>
+        <div style="font-size:14px;color:var(--text);margin-top:8px;font-weight:700;">Все медали разблокированы!</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">Ты достигла максимума. Легенда.</div>
+      </div>
+    </div>`}
+
+    <!-- Значки достижений -->
+    <div class="section">
+      <div class="section-title">Достижения</div>
+      <div class="card-surface" style="padding:16px;">
+        <div style="display:flex;gap:8px;justify-content:space-between;">${badges}</div>
+      </div>
+    </div>
+
+    <!-- Календарь 30 дней -->
+    <div class="section">
+      <div class="section-title">Активность за 30 дней</div>
+      <div class="card-surface" style="padding:16px;">
+        <div style="display:grid;grid-template-columns:repeat(10,1fr);gap:4px;">
+          ${calCells.join('')}
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:8px;">
+          <div style="font-size:10px;color:var(--text-muted);">30 дней назад</div>
+          <div style="font-size:10px;color:var(--text-muted);">Сегодня</div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
 /* ---- 11б. МОИ ПРАКТИКИ — ЧЕКЛИСТ ---- */
 function renderMyChecklist() {
   const myRoutines = Store.getMyRoutines();
@@ -996,9 +1136,9 @@ function renderProfile() {
     <!-- Статистика -->
     <div class="section">
       <div class="stats-grid">
-        <div class="stat-card">
+        <div class="stat-card" id="btn-streak-detail" style="cursor:pointer;">
           <div class="stat-num" style="color:#ff9500;">🔥${streak}</div>
-          <div class="stat-label">Серия дней</div>
+          <div class="stat-label">Серия дней →</div>
         </div>
         <div class="stat-card" id="btn-my-checklist" style="cursor:pointer;">
           <div class="stat-num">${myRoutines.length}</div>
@@ -1561,8 +1701,9 @@ function bindScreen(screen, params, container) {
   if (screen === 'sphere-detail') bindSphereDetail(container, params.sphereId);
   if (screen === 'library')     bindLibrary(container);
   if (screen === 'progress')    bindProgress(container);
-  if (screen === 'profile')     bindProfile(container);
+  if (screen === 'profile')      bindProfile(container);
   if (screen === 'my-checklist') bindMyChecklist(container);
+  if (screen === 'streak-detail') bindStreakDetail(container);
 }
 
 function bindOnboarding(container) {
@@ -1830,6 +1971,10 @@ function bindProgress(container) {
   container.querySelector('#btn-go-pro')?.addEventListener('click', openProModal);
 }
 
+function bindStreakDetail(_container) {
+  // Экран только для просмотра, интерактив не нужен
+}
+
 function bindMyChecklist(container) {
   container.querySelectorAll('[data-checkin]').forEach(el => {
     if (!el.classList.contains('checklist-box')) return;
@@ -1843,6 +1988,11 @@ function bindMyChecklist(container) {
 }
 
 function bindProfile(container) {
+  container.querySelector('#btn-streak-detail')?.addEventListener('click', () => {
+    pushHistory('profile', {});
+    navigate('streak-detail');
+  });
+
   container.querySelector('#btn-my-checklist')?.addEventListener('click', () => {
     pushHistory('profile', {});
     navigate('my-checklist');
