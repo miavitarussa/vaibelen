@@ -55,8 +55,8 @@
         const t = i / 22;
         return {
           x: W * (0.05 + t * 0.85) + (Math.random() - 0.5) * W * 0.25,
-          y: H * (0.08 + t * 0.55) + (Math.random() - 0.5) * H * 0.18,
-          r: Math.random() * 13 + 8,
+          y: H * (0.04 + t * 0.45) + (Math.random() - 0.5) * H * 0.15,
+          r: Math.random() * 7 + 4,
           alpha: Math.random() * 0.4 + 0.6,
           twinkle: Math.random() * 0.018 + 0.008,
           dir: Math.random() > 0.5 ? 1 : -1,
@@ -76,54 +76,41 @@
       }));
 
       function drawMountains() {
-        // Дальние горы — занимают нижнюю треть
+        // Дальние горы — пики на 72% экрана
         ctx.beginPath();
-        ctx.moveTo(-10, H + 10);
-        ctx.lineTo(-10, H * 0.76);
-        // Плавный подъём слева
-        ctx.bezierCurveTo(W*0.05, H*0.76, W*0.10, H*0.70, W*0.18, H*0.66);
-        // Первый пик — мягкий
-        ctx.bezierCurveTo(W*0.22, H*0.63, W*0.24, H*0.61, W*0.27, H*0.62);
-        ctx.bezierCurveTo(W*0.30, H*0.63, W*0.33, H*0.67, W*0.37, H*0.68);
-        // Центральный высокий пик с острым но мягким верхом
-        ctx.bezierCurveTo(W*0.41, H*0.68, W*0.44, H*0.60, W*0.47, H*0.57);
-        ctx.bezierCurveTo(W*0.49, H*0.555, W*0.51, H*0.555, W*0.53, H*0.57);
-        // Спуск и второй пик
-        ctx.bezierCurveTo(W*0.56, H*0.60, W*0.59, H*0.65, W*0.63, H*0.64);
-        ctx.bezierCurveTo(W*0.67, H*0.63, W*0.70, H*0.60, W*0.73, H*0.61);
-        ctx.bezierCurveTo(W*0.76, H*0.62, W*0.79, H*0.66, W*0.83, H*0.67);
-        // Правый пик
-        ctx.bezierCurveTo(W*0.87, H*0.67, W*0.90, H*0.63, W*0.93, H*0.65);
-        ctx.bezierCurveTo(W*0.96, H*0.67, W*0.99, H*0.72, W+10, H*0.74);
+        ctx.moveTo(-10, H+10);
+        ctx.lineTo(-10, H*0.82);
+        ctx.bezierCurveTo(W*0.05,H*0.82, W*0.12,H*0.78, W*0.20,H*0.75);
+        ctx.bezierCurveTo(W*0.28,H*0.72, W*0.32,H*0.74, W*0.38,H*0.76);
+        ctx.bezierCurveTo(W*0.43,H*0.77, W*0.46,H*0.73, W*0.50,H*0.72);
+        ctx.bezierCurveTo(W*0.54,H*0.73, W*0.57,H*0.77, W*0.62,H*0.76);
+        ctx.bezierCurveTo(W*0.68,H*0.75, W*0.72,H*0.72, W*0.76,H*0.73);
+        ctx.bezierCurveTo(W*0.80,H*0.74, W*0.85,H*0.78, W*0.92,H*0.79);
+        ctx.bezierCurveTo(W*0.96,H*0.80, W+10,H*0.82, W+10,H*0.82);
         ctx.lineTo(W+10, H+10);
         ctx.closePath();
-        const mgr = ctx.createLinearGradient(0, H*0.55, 0, H);
-        mgr.addColorStop(0, '#0e1640');
-        mgr.addColorStop(0.4, '#080f28');
-        mgr.addColorStop(1, '#040810');
-        ctx.fillStyle = mgr;
+        const g1 = ctx.createLinearGradient(0, H*0.70, 0, H);
+        g1.addColorStop(0, '#0f1a42');
+        g1.addColorStop(1, '#060b1e');
+        ctx.fillStyle = g1;
         ctx.fill();
 
-        // Ближние горы — самый нижний слой, темнее
+        // Ближние горы — пики на 78%
         ctx.beginPath();
-        ctx.moveTo(-10, H + 10);
-        ctx.lineTo(-10, H * 0.86);
-        ctx.bezierCurveTo(W*0.04, H*0.86, W*0.09, H*0.82, W*0.15, H*0.78);
-        ctx.bezierCurveTo(W*0.19, H*0.75, W*0.22, H*0.73, W*0.26, H*0.74);
-        ctx.bezierCurveTo(W*0.30, H*0.75, W*0.34, H*0.78, W*0.38, H*0.77);
-        // Главный ближний пик
-        ctx.bezierCurveTo(W*0.42, H*0.76, W*0.46, H*0.70, W*0.50, H*0.68);
-        ctx.bezierCurveTo(W*0.52, H*0.675, W*0.54, H*0.675, W*0.56, H*0.69);
-        ctx.bezierCurveTo(W*0.60, H*0.71, W*0.64, H*0.76, W*0.68, H*0.75);
-        ctx.bezierCurveTo(W*0.72, H*0.74, W*0.76, H*0.72, W*0.80, H*0.73);
-        ctx.bezierCurveTo(W*0.84, H*0.74, W*0.88, H*0.78, W*0.93, H*0.79);
-        ctx.bezierCurveTo(W*0.97, H*0.80, W+10, H*0.82, W+10, H*0.83);
+        ctx.moveTo(-10, H+10);
+        ctx.lineTo(-10, H*0.90);
+        ctx.bezierCurveTo(W*0.06,H*0.90, W*0.14,H*0.86, W*0.22,H*0.83);
+        ctx.bezierCurveTo(W*0.30,H*0.80, W*0.36,H*0.82, W*0.42,H*0.83);
+        ctx.bezierCurveTo(W*0.46,H*0.83, W*0.49,H*0.79, W*0.52,H*0.78);
+        ctx.bezierCurveTo(W*0.55,H*0.79, W*0.58,H*0.83, W*0.64,H*0.83);
+        ctx.bezierCurveTo(W*0.70,H*0.83, W*0.75,H*0.80, W*0.80,H*0.81);
+        ctx.bezierCurveTo(W*0.86,H*0.82, W*0.92,H*0.86, W+10,H*0.88);
         ctx.lineTo(W+10, H+10);
         ctx.closePath();
-        const mg2 = ctx.createLinearGradient(0, H*0.68, 0, H);
-        mg2.addColorStop(0, '#06091e');
-        mg2.addColorStop(1, '#020408');
-        ctx.fillStyle = mg2;
+        const g2 = ctx.createLinearGradient(0, H*0.77, 0, H);
+        g2.addColorStop(0, '#07091f');
+        g2.addColorStop(1, '#020408');
+        ctx.fillStyle = g2;
         ctx.fill();
       }
 
