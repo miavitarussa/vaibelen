@@ -24,6 +24,29 @@ tg.disableVerticalSwipes && tg.disableVerticalSwipes();
 tg.setHeaderColor('#0b0b17');
 tg.setBackgroundColor('#0b0b17');
 
+/* ---- 1b. АВТОРИЗАЦИЯ ЧЕРЕЗ SUPABASE ---- */
+const SUPABASE_FUNCTION_URL = 'https://esgqahvruhcqoroxflsu.supabase.co/functions/v1/auth-verify';
+
+async function authWithSupabase() {
+  const initData = window.Telegram?.WebApp?.initData;
+  if (!initData) return; // в браузере пропускаем
+  try {
+    const res = await fetch(SUPABASE_FUNCTION_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ initData })
+    });
+    const data = await res.json();
+    if (data.ok) {
+      console.log('Авторизован, user_id:', data.user_id);
+    }
+  } catch (e) {
+    console.warn('Supabase auth error:', e);
+  }
+}
+
+authWithSupabase();
+
 /* ---- 2. ХРАНИЛИЩЕ (localStorage) ---- */
 const Store = {
   PREFIX: 'portfel_',
